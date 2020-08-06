@@ -51,3 +51,11 @@ class Comment(models.Model):
 
     def __str__(self):
         return f"Comment on {self.listing.title} by {self.user.username}"
+
+class Watchlist(models.Model):
+    id = models.AutoField(auto_created=True, primary_key=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="watchlist_user")
+    listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="watchlist_listing")
+
+    def __str__(self):
+        return f"{self.user} watching {self.listing.title}"

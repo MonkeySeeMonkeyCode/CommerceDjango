@@ -5,27 +5,29 @@
 
     <ul>
         {% for list in listing %}
-            <li>
-                {% if list.image %}
-                    <div>
-                        <img src="{{ list.image }}" width="100" height="100">
-                    </div>
-                {% endif %}
-                <div>
-                    Item: {{ list.title }}
-                </div>
-                <div>
-                    Description: {{ list.description }}
-                </div>
-                <div>
-                    {% if list.init_bid > list.currentbid.amount %}
-                        Current Price: {{ list.init_bid }}
-                    {% else %}
-                        Current Price: {{ list.currentbid.amount }}
+            <a href="{{list.id}}">
+                <li>
+                    {% if list.image %}
+                        <div>
+                            <img src="{{ list.image }}" width="100" height="100">
+                        </div>
                     {% endif %}
-                </div>
-            </li>
+                    <div>
+                        Item: {{ list.title }}
+                    </div>
+                    <div>
+                        Description: {{ list.description }}
+                    </div>
+                    <div>
+                        {% if list.init_bid > list.currentbid.amount %}
+                            Current Price: {{ list.init_bid }}
+                        {% else %}
+                            Current Price: {{ list.currentbid.amount }}
+                        {% endif %}
+                    </div>
+                </li>
             <br>
+            </a>
         {% endfor %}
     </ul>
 {% endblock %}

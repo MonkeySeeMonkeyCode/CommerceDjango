@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.forms import ModelForm
 from django.utils.translation import ugettext_lazy as _
 
-from .models import User, Listing, CurrentBid
+from .models import User, Listing, CurrentBid, Watchlist
 
 
 def index(request):
@@ -14,7 +14,6 @@ def index(request):
     return render(request, "auctions/index.html", {
         'listing': listing,
     })
-
 
 def login_view(request):
     if request.method == "POST":
@@ -35,11 +34,9 @@ def login_view(request):
     else:
         return render(request, "auctions/login.html")
 
-
 def logout_view(request):
     logout(request)
     return HttpResponseRedirect(reverse("index"))
-
 
 def register(request):
     if request.method == "POST":
@@ -101,3 +98,35 @@ def createlisting(request):
         listing.save()
         form.save_m2m()
         return HttpResponseRedirect(reverse("index"))
+
+def listing(request, listing_id):
+    try:
+        listing = Listing.objects.get(id=listing_id)
+        category = listing.category.all()
+        watchlist = Watchlist.objects.get(user=request.user,listing=listing)
+    except Listing.DoesNotExist:
+        raise Http404("Listing no found.")
+    except Watchlist.DoesNotExist:
+        watchlist = ""
+    return render(request, "auctions/listingdetail.html", {
+        "listing": listing,
+        "category": category,
+        "watchlist": watchlist,
+    })
+
+class WatchlistForm(ModelForm):
+    class Meta:
+        model = Watchlist
+        fields = '__all__'
+
+def watchlist(request):
+    listing = Listing.objects.get(pk=request.POST['id'])
+    action = request.POST['action']
+    user = request.user
+    if action == "add":
+        watchlist = Watchlist(user=user, listing=listing)
+        watchlist.save()
+    if action == "remove":
+        watchlist = Watchlist.objects.get(user=user.id, listing=request.POST['id'])
+        watchlist.delete()
+    return HttpResponseRedirect(reverse("listing", args=(request.POST['id'],)))

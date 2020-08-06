@@ -1,0 +1,58 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+
+<h2>Listing Detail</h2>
+
+{% if watchlist %}
+    <h6>Watching</h6>
+{% endif %}
+
+{% if listing.image %}
+    <div>
+        <img src="{{ listing.image }}" width="100" height="100">
+    </div>
+{% endif %}
+<div>
+    Item: {{ listing.title }}
+</div>
+<div>
+    Description: {{ listing.description }}
+</div>
+<div>
+    {% if listing.init_bid > listing.currentbid.amount %}
+        Current Price: {{ listing.init_bid }}
+    {% else %}
+        Current Price: {{ listing.currentbid.amount }}
+    {% endif %}
+</div>
+<div>
+    Listing posted by: {{listing.createdby}}
+</div>
+<div>
+    Category: 
+    {% for category in category %}
+         {{category}}
+    {% endfor %}
+</div>
+<div>
+    {% if listing.active == True %}
+        Item status: Open
+    {% else %}
+        Item status: Closed
+    {% endif %}
+</div>
+
+<form action="{% url 'watchlist' %}" method="POST">
+    {% csrf_token %}
+    <input type="hidden" name="id" value="{{listing.id}}">
+    {% if user.is_authenticated and watchlist %}
+        <input type="hidden" name="action" value="remove">
+        <input type="submit" value="Remove from watchlist">
+    {% elif user.is_authenticated %}
+        <input type="hidden" name="action" value="add">
+        <input type="submit" value="Add to watchlist">
+    {% endif %}
+</form>
+
+{% endblock %}
