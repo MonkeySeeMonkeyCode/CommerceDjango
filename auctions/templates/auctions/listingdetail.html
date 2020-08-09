@@ -8,6 +8,10 @@
     <h6>Watching</h6>
 {% endif %}
 
+{% if bid.user == user and bid.initial == False and listing.active == False %}
+    <h5>Congratulations!!! You've Won!</h3>
+{% endif %}
+
 {% if listing.image %}
     <div>
         <img src="{{ listing.image }}" width="100" height="100">
@@ -43,16 +47,60 @@
     {% endif %}
 </div>
 
-<form action="{% url 'watchlist' %}" method="POST">
-    {% csrf_token %}
-    <input type="hidden" name="id" value="{{listing.id}}">
-    {% if user.is_authenticated and watchlist %}
-        <input type="hidden" name="action" value="remove">
-        <input type="submit" value="Remove from watchlist">
-    {% elif user.is_authenticated %}
-        <input type="hidden" name="action" value="add">
-        <input type="submit" value="Add to watchlist">
+{% if user.is_authenticated and listing.active %}
+    <form action="{% url 'watchlist' %}" method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="id" value="{{listing.id}}">
+        {% if user.is_authenticated and watchlist %}
+            <input type="hidden" name="action" value="remove">
+            <input type="submit" value="Remove from watchlist">
+        {% elif user.is_authenticated %}
+            <input type="hidden" name="action" value="add">
+            <input type="submit" value="Add to watchlist">
+        {% endif %}
+    </form>
+
+    <form action="{% url 'placebid' %}" method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="id" value="{{listing.id}}">
+        {{bidform}}
+        <input type="submit" value="Place Bid">
+    </form>
+    {{biderror}}
+
+    <h6>User Comments:</h6>
+    {% if comments %}
+        <div>
+            <ul>
+                {% for desc in comments %}
+                    <li>
+                        {{desc.description}}
+                        <br>
+                        Written by: {{desc.user}} on {{desc.datetime}}
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% else %}
+        <div>
+            No comments written yet.
+        </div>
     {% endif %}
-</form>
+
+    <textarea name="comment" form="commentform" rows="4" cols="50" placeholder="Leave a comment!"></textarea>
+    <form action="{% url 'comment' %}" method="POST" id="commentform">
+        {% csrf_token %}
+        <input type="hidden" name="id" value="{{listing.id}}">
+        <input type="submit">
+    </form>
+{% endif%}
+
+{% if user.is_authenticated and listing.createdby == user and listing.active %}
+    <form action="{% url 'closelisting' %}" method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="id" value="{{listing.id}}">
+        <input type="submit" value="Close Listing">
+    </form>
+{% endif%}
 
 {% endblock %}

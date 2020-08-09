@@ -15,6 +15,7 @@ class CurrentBid(models.Model):
     id = models.AutoField(auto_created=True, primary_key=True)
     amount = models.IntegerField()
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="bidder")
+    initial = models.BooleanField(default="True")
 
     def __str__(self):
         return f"${self.amount} by {self.user.username}"
@@ -33,18 +34,9 @@ class Listing(models.Model):
     def __str__(self):
         return f"{self.title}"
 
-# class Bids(models.Model):
-#     id = models.AutoField(auto_created=True, primary_key=True)
-#     current_bid = models.IntegerField()
-#     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="bidder")
-#     item = models.ForeignKey(Listing, on_delete=models.CASCADE, default=None, related_name="biditem")
-
-#     def __str__(self):
-#         return f"${self.current_bid} on {self.item} by {self.user.username}"
-
 class Comment(models.Model):
     id = models.AutoField(auto_created=True, primary_key=True)
-    listing = models.ForeignKey(Listing, on_delete=models.CASCADE)
+    listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="comment_listing")
     description = models.TextField()
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="comment_creator")
     datetime = models.DateField(auto_now=True)
